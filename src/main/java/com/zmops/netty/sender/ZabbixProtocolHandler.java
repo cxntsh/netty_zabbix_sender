@@ -19,10 +19,16 @@ public class ZabbixProtocolHandler extends SimpleChannelInboundHandler<ByteBuf> 
     private static ChannelHandlerContext context;
 
 
+    /**
+     * 异步获取 返回消息
+     *
+     * @param ctx
+     * @param msg
+     */
     @Override
     public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
         try {
-            System.out.println(decodeToPayload(ctx, msg));
+            System.out.println(decodeToPayload(msg));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,6 +46,7 @@ public class ZabbixProtocolHandler extends SimpleChannelInboundHandler<ByteBuf> 
     public static void sendMessage(String message) throws IOException {
         int payloadLength = message.length();
 
+        // 协议头
         byte[] header = new byte[]{
                 'Z', 'B', 'X', 'D', '\1',
                 (byte) (payloadLength & 0xFF),
@@ -66,7 +73,15 @@ public class ZabbixProtocolHandler extends SimpleChannelInboundHandler<ByteBuf> 
     private static final int    HEADER_LEN = 9;
     private static final byte[] PROTOCOL   = new byte[]{'Z', 'B', 'X', 'D'};
 
-    public String decodeToPayload(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) throws InterruptedException, ZabbixErrorProtocolException {
+    /**
+     * 反向解码
+     *
+     * @param byteBuf
+     * @return
+     * @throws InterruptedException
+     * @throws ZabbixErrorProtocolException
+     */
+    public String decodeToPayload(ByteBuf byteBuf) throws InterruptedException, ZabbixErrorProtocolException {
         int readable  = byteBuf.readableBytes();
         int baseIndex = byteBuf.readerIndex();
         if (readable < HEADER_LEN) {

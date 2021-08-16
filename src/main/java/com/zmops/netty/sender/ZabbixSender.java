@@ -2,14 +2,15 @@ package com.zmops.netty.sender;
 
 import com.google.gson.Gson;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.Collections;
 import java.util.Random;
 
@@ -27,7 +28,7 @@ public class ZabbixSender {
 
         client.group(group)
                 .channel(NioSocketChannel.class)
-                .remoteAddress(new InetSocketAddress("172.16.3.72", 10051))
+                .remoteAddress(new InetSocketAddress("127.0.0.1", 10051)) // zabbix server 部署地址
                 .option(ChannelOption.TCP_NODELAY, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -40,6 +41,7 @@ public class ZabbixSender {
         Gson gson = new Gson();
 
 
+        // 模拟测试数据，5s 发送一次
         for (; ; ) {
 
             ZabbixTrapperRequest.SenderData senderData = new ZabbixTrapperRequest.SenderData();
